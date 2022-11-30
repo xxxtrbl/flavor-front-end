@@ -8,7 +8,7 @@ import axios from "axios"
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
-axios.defaults.baseURL = "http://localhost:8080/"
+axios.defaults.baseURL = "http://localhost:9090/"
 new Vue({
     router,
     render: h => h(App)

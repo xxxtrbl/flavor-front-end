@@ -14,7 +14,7 @@
             <input type="radio" name="idType" value="0" v-model="user.isId">其他
         </span>
         <input v-model="user.idNum" maxlength="18" oninput="value=value.replace(/[^\d]/g,'')" type="text" placeholder="证件号码">
-        <input v-model="user.phone" maxlength="11" oninput="value=value.replace(/[^\d]/g,'')" type="text" placeholder="手机号码">
+        <input v-model="user.phoneNum" maxlength="11" oninput="value=value.replace(/[^\d]/g,'')" type="text" placeholder="手机号码">
         <span>选择城市:
             <el-select size="small" style="width: 100px" v-model="selectProv" placeholder="请选择省份" v-on:change="getProv($event)">
                 <el-option v-for="item in provs" :label="item.label" :value="item.value">
@@ -44,9 +44,11 @@ export default {
                 userName: "",
                 isId: 1,
                 idNum: "",
-                phone: "",
+                phoneNum: "",
                 city: "",
                 intro: "",
+                create_time: "",
+                revise_time: "",
             },
             provs: [
                 { label: "北京市", value: "北京市" },
@@ -97,7 +99,7 @@ export default {
                 this.user.nickname != "" &&
                 this.user.userName != "" &&
                 this.user.idNum != "" &&
-                this.user.phone != "" &&
+                this.user.phoneNum != "" &&
                 this.user.city != "" &&
                 this.user.intro != ""
             ) {
