@@ -121,6 +121,8 @@ export default {
     },
     methods: {
         signOut: function () {
+            this.$router.push("/");
+            this.$router.go(0);
             sessionStorage.clear();
             this.isAdmin = false;
             this.isLogged = false;

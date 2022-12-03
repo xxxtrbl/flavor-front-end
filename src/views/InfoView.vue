@@ -2,21 +2,21 @@
     <div id="root">
         <span>用户名:&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp{{curUser.nickname}}</span>
         <span>密码:&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp{{curUser.password}}
-            <input type="password" name="revisePwd" placeholder="请输入新密码" v-model="this.newPwd">
+            <input type="password" name="newpassword" placeholder="请输入新密码" v-model="newPwd">
             <button @click="revisePwd()">修改密码</button></span>
-        <span>用户类型:&nbsp&nbsp&nbsp&nbsp{{curUser.isAdmin==0?"用户":管理员}}</span>
+        <span>用户类型:&nbsp&nbsp&nbsp&nbsp{{curUser.admin == 0? "用户" : "管理员"}}</span>
         <span>用户姓名:&nbsp&nbsp&nbsp&nbsp{{curUser.userName}}</span>
         <span>证件类型:&nbsp&nbsp&nbsp&nbsp{{curUser.isId==1?"身份证件":"其他证件"}}</span>
         <span>证件号码:&nbsp&nbsp&nbsp&nbsp{{curUser.idNum}}</span>
         <span>手机号码:&nbsp&nbsp&nbsp&nbsp{{curUser.phone}}
-            <input type="password" name="revisePhone" placeholder="请输入新手机号" v-model="this.newPhone">
+            <input type="password" name="newphone" placeholder="请输入新手机号" v-model="newPhone">
             <button @click="revisePhone()">修改号码</button></span>
         <span>用户级别:&nbsp&nbsp&nbsp&nbsp{{curUser==0?"普通":"VIP"}}</span>
         <span>用户简介:&nbsp&nbsp&nbsp&nbsp{{curUser.intro}}
-            <input type="text" name="reviseIntro" placeholder="请输入新简介" v-model="this.newIntro">
+            <input type="text" name="newintro" placeholder="请输入新简介" v-model="newIntro">
             <button @click="reviseIntro()">修改简介</button></span>
         <span>注册城市:&nbsp&nbsp&nbsp&nbsp{{curUser.city}}</span>
-        <span>注册时间:&nbsp&nbsp&nbsp&nbsp{{curUser.date}}</span>
+        <span>注册时间:&nbsp&nbsp&nbsp&nbsp{{curUser.createTime}}</span>
         <span>修改时间:&nbsp&nbsp&nbsp&nbsp{{curUser.reviseTime}}</span>
     </div>
 </template>
@@ -38,7 +38,7 @@ export default {
                 phone: 1637584732,
                 city: "上海",
                 intro: "活泼开朗",
-                date: "2020/9/10",
+                createTime: "2020/9/10",
                 reviseTime: "2021/8/5",
             },
             newPwd: "",
@@ -57,7 +57,7 @@ export default {
                 })
                 .then((out) => {
                     if (out.status == 200) {
-                        this.curUser = out.data;
+                        this.$router.go(0);
                     } else {
                         alert("请求错误, 请重试!");
                     }
@@ -77,6 +77,7 @@ export default {
                     .then((out) => {
                         if (out.status == 200) {
                             alert("修改成功!");
+                            this.$router.go(0);
                         } else {
                             alert("服务器错误, 请重试!");
                         }
@@ -97,6 +98,7 @@ export default {
                     .then((out) => {
                         if (out.status == 200) {
                             alert("修改成功!");
+                            this.$router.go(0);
                         } else {
                             alert("服务器错误, 请重试!");
                         }
@@ -111,18 +113,35 @@ export default {
                     .get("/user/reviseIntro", {
                         params: {
                             id: this.curUser.id,
-                            newItro: this.newIntro,
+                            newIntro: this.newIntro,
                         },
                     })
                     .then((out) => {
                         if (out.status == 200) {
                             alert("修改成功!");
+                            this.$router.go(0);
                         } else {
                             alert("服务器错误, 请重试!");
                         }
                     });
             }
         },
+    },
+    created: function () {
+        this.curUser.id = sessionStorage.getItem("id");
+        axios
+            .get("/user/info", {
+                params: {
+                    id: this.curUser.id,
+                },
+            })
+            .then((out) => {
+                if (out.status == 200) {
+                    this.curUser = out.data;
+                } else {
+                    alert("请求错误, 请重试!");
+                }
+            });
     },
 };
 </script>
