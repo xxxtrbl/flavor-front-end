@@ -1,6 +1,7 @@
 <template>
     <div>
-        <div>您所在的地区是:<span style="color:blue">{{this.city}}</span></div>
+        <el-input v-model="keyword" style="width:40%" placeholder="搜索关键词" />
+        <el-button @click="fuzzySearch()">搜索(支持对内容、主题的模糊搜索)</el-button>
         <el-table :data="requestsInfo.slice((currentPage-1)*pageSize, currentPage*pageSize)" style="width: 100%" :cell-class-name="cellClassName" @cell-click="checkDetail" :current-page.sync="currentPage">
             <el-table-column prop="flavorType" label="口味">
                 <template slot-scope="scope">
@@ -17,13 +18,16 @@
                         甜酸味
                     </span>
                     <span v-if="scope.row.flavorType==4">
-                        绝一位菜
+                        绝一味菜
                     </span>
                 </template>
             </el-table-column>
             <el-table-column prop="theme" label="主题" />
             <el-table-column prop="intro" label="内容" />
             <el-table-column prop="maxPrice" label="最大价钱" />
+            <el-table-column prop="endDate" label="截至日期" />
+            <el-table-column prop="createTime" label="创建日期" />
+            <el-table-column prop="reviseTime" label="修改日期" />
             <el-table-column prop="status" label="状态">
                 <template slot-scope="scope">
                     <span v-if="scope.row.status==0">
@@ -40,13 +44,6 @@
                     </span>
                 </template>
             </el-table-column>
-            <el-table-column align="right">
-                <template slot-scope="scope">
-                    <el-button size="small" @click="answerRequest(scope.row)">
-                        查看详情
-                    </el-button>
-                </template>
-            </el-table-column>
         </el-table>
         <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-sizes="[1, 2, 4]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="requestsInfo.length">
         </el-pagination>
@@ -56,21 +53,17 @@
 <script>
 import axios from "axios";
 export default {
-    name: "LocalflavorView",
+    name: "RequestView",
     data() {
         return {
             requestsInfo: [],
             click_row: -1,
             pageSize: 1,
             currentPage: 1,
-            city: "",
+            keyword: "",
         };
     },
     methods: {
-        answerRequest: function (row) {
-            sessionStorage.setItem("requestId2", row.requestId);
-            this.$router.push("/answer");
-        },
         handleSizeChange(val) {
             this.pageSize = val;
         },
@@ -82,21 +75,37 @@ export default {
             this.click_row = row.index;
             this.curId = this.requestsInfo[row.index].requestId;
         },
+        fuzzySearch: function () {
+            axios
+                .get("request/fuzzySearch", {
+                    params: {
+                        keyword: this.keyword,
+                    },
+                })
+                .then((out) => {
+                    if (out.status == 200) {
+                        this.requestsInfo = out.data.requests;
+                    } else {
+                        alert("请刷新重试！");
+                    }
+                })
+                .catch((error) => {
+                    alert(error);
+                });
+        },
     },
     created: function () {
-        this.city = sessionStorage.getItem("city");
         axios
-            .get("/request/filterByCity", {
-                params: {
-                    city: sessionStorage.getItem("city"),
-                },
-            })
+            .get("/request/getAll")
             .then((out) => {
                 if (out.status == 200) {
                     this.requestsInfo = out.data.requests;
                 } else {
                     alert("请求错误,请刷新页面重试!");
                 }
+            })
+            .catch((error) => {
+                alert(error);
             });
     },
 };

@@ -6,7 +6,7 @@ import SignupView from "../views/SignupView.vue"
 import InfoView from "../views/InfoView.vue"
 import PublishView from "../views/PublishView.vue"
 import PublishedlistView from "../views/PublishedlistView.vue"
-import ReviseView from "../views/ReviseView.vue"
+import RequestView from "../views/RequestView.vue"
 import ResponsedView from "../views/ResponsedView.vue"
 import LocalflavorView from "../views/LocalflavorView.vue"
 import CommentsView from "../views/CommentsView.vue"
@@ -15,6 +15,8 @@ import StatisticView from "../views/StatisticView.vue"
 import SearchflavorView from "../views/SearchflavorView.vue"
 import RecievedmsgView from "../views/RecievedmsgView.vue"
 import FeestatisticView from "../views/FeestatisticView.vue"
+import AnswerView from "../views/AnswerView.vue"
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -28,7 +30,7 @@ const routes = [
             { path: '/info', name: 'userInfo', component: InfoView },
             { path: '/publish', name: 'publish', component: PublishView },
             { path: '/publishedList', name: 'publishedList', component: PublishedlistView },
-            { path: '/revise', name: 'revise', component: ReviseView },
+            { path: '/allRequests', name: 'allRequests', component: RequestView },
             { path: '/responsed', name: 'responsed', component: ResponsedView },
             { path: '/localFlavor', name: 'localFlavor', component: LocalflavorView },
             { path: '/myComments', name: 'myComments', component: CommentsView },
@@ -36,7 +38,8 @@ const routes = [
             { path: '/statistic', name: 'statistic', component: StatisticView },
             { path: '/searchFlavor', name: 'searchFlavor', component: SearchflavorView },
             { path: '/recievedMsg', name: 'recievedMsg', component: RecievedmsgView },
-            { path: '/feeStatistic', name: 'feeStatistic', component: FeestatisticView }
+            { path: '/feeStatistic', name: 'feeStatistic', component: FeestatisticView },
+            { path: '/answer', name: 'answerView', component: AnswerView }
         ]
     },
 ]

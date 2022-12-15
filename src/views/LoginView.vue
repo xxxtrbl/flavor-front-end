@@ -36,7 +36,23 @@ export default {
                             // Successfully log in.
                             sessionStorage.setItem("id", this.id);
                             sessionStorage.setItem("password", this.password);
-
+                            // Get info and save city in Session Storage
+                            axios
+                                .get("/user/info", {
+                                    params: {
+                                        id: this.id,
+                                    },
+                                })
+                                .then((out) => {
+                                    if (out.status == 200) {
+                                        sessionStorage.setItem(
+                                            "city",
+                                            out.data.city
+                                        );
+                                    } else {
+                                        alert("请求错误, 请重试!");
+                                    }
+                                });
                             alert("登陆成功, 即将自动跳转至首页");
                             this.$router.push("/");
                             this.$router.go(0);

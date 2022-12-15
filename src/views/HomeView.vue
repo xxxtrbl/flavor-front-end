@@ -17,8 +17,8 @@
                                 </router-link>
                             </el-menu-item>
                             <el-menu-item index="1-3">
-                                <router-link to="/revise">
-                                    我要修改/删除
+                                <router-link to="/allRequests">
+                                    查看所有寻味道
                                 </router-link>
                             </el-menu-item>
                             <el-menu-item index="1-4">
