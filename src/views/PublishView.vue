@@ -11,7 +11,7 @@
             最大价格：
             <el-input-number v-model="info.maxPrice" :min="1" :max="2000"></el-input-number>
         </div>
-        <el-date-picker v-model="info.endDate" type="date" placeholder="选择请求结束日期" :picker-options="pickerOptions">
+        <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" v-model="info.endDate" type="date" placeholder="选择请求结束日期" :picker-options="pickerOptions">
         </el-date-picker>
         <el-upload class="upload-demo" action="http://localhost:9090/request/uploadPics" :on-change="handleChange" :limit="1" :on-remove="handleRemove" :file-list="fileList" list-type="picture">
             <el-button size="small" type="primary">上传图片</el-button>
@@ -36,6 +36,8 @@ export default {
                 endDate: "",
                 photo: "",
                 status: 1,
+                createTime: "",
+                reviseTime: "",
             },
             fileList: [],
             options: [
@@ -85,6 +87,7 @@ export default {
                 axios.post("/request/addRequest", this.info).then((out) => {
                     if (out.status == 200) {
                         alert("已提交!");
+                        this.$router.push("/publishedList");
                     } else {
                         alert("出现错误, 请重试!");
                     }

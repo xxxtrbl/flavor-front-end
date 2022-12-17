@@ -1,24 +1,33 @@
 <template>
-    <div id="root">
-        <span>用户名:&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp{{curUser.nickname}}</span>
-        <span>密码:&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp{{curUser.password}}
-            <input type="password" name="newpassword" placeholder="请输入新密码" v-model="newPwd">
-            <button @click="revisePwd()">修改密码</button></span>
-        <span>用户类型:&nbsp&nbsp&nbsp&nbsp{{curUser.admin == 0? "用户" : "管理员"}}</span>
-        <span>用户姓名:&nbsp&nbsp&nbsp&nbsp{{curUser.userName}}</span>
-        <span>证件类型:&nbsp&nbsp&nbsp&nbsp{{curUser.isId==1?"身份证件":"其他证件"}}</span>
-        <span>证件号码:&nbsp&nbsp&nbsp&nbsp{{curUser.idNum}}</span>
-        <span>手机号码:&nbsp&nbsp&nbsp&nbsp{{curUser.phone}}
-            <input type="password" name="newphone" placeholder="请输入新手机号" v-model="newPhone">
-            <button @click="revisePhone()">修改号码</button></span>
-        <span>用户级别:&nbsp&nbsp&nbsp&nbsp{{curUser==0?"普通":"VIP"}}</span>
-        <span>用户简介:&nbsp&nbsp&nbsp&nbsp{{curUser.intro}}
-            <input type="text" name="newintro" placeholder="请输入新简介" v-model="newIntro">
-            <button @click="reviseIntro()">修改简介</button></span>
-        <span>注册城市:&nbsp&nbsp&nbsp&nbsp{{curUser.city}}</span>
-        <span>注册时间:&nbsp&nbsp&nbsp&nbsp{{curUser.createTime}}</span>
-        <span>修改时间:&nbsp&nbsp&nbsp&nbsp{{curUser.reviseTime}}</span>
-    </div>
+    <el-descriptions title="用户信息" direction="vertical" :column="4" border>
+        <el-descriptions-item label="用户id">{{this.info.id}}</el-descriptions-item>
+        <el-descriptions-item label="用户密码">
+            {{this.info.password}}
+            <el-input size="small" style="width:150px" type="password" show-password v-model="newPwd" />
+            <el-button size="small" @click="revisePwd()">修改</el-button>
+        </el-descriptions-item>
+        <el-descriptions-item label="用户名">{{this.info.nickname}}</el-descriptions-item>
+        <el-descriptions-item label="用户类型">
+            <el-tag size="small" v-if="info.isAdmin">管理员</el-tag>
+            <el-tag size="small" v-else>用户</el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="身份类型">
+            <el-tag size="small" v-if="info.isIdCard">身份证</el-tag>
+            <el-tag size="small" v-else>其他</el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="证件号码">{{this.info.idNum}}</el-descriptions-item>
+        <el-descriptions-item label="电话号码">{{this.info.phone}}
+            <el-input size="small" style="width:150px" v-model="newPhone" />
+            <el-button size="small" @click="revisePhone()">修改</el-button>
+        </el-descriptions-item>
+        <el-descriptions-item label="城市">{{this.info.city}}</el-descriptions-item>
+        <el-descriptions-item label="创建时间">{{this.info.createTime}}</el-descriptions-item>
+        <el-descriptions-item label="修改时间">{{this.info.reviseTime}}</el-descriptions-item>
+        <el-descriptions-item label="简介">{{this.info.intro}}
+            <el-input size="small" style="width:150px" v-model="newIntro" />
+            <el-button size="small" @click="reviseIntro()">修改</el-button>
+        </el-descriptions-item>
+    </el-descriptions>
 </template>
 
 <script>
@@ -27,32 +36,37 @@ export default {
     name: "InfoView",
     data() {
         return {
-            curUser: {
-                id: 123456,
-                nickname: "wxh",
-                password: "3456789",
-                isAdmin: 0,
-                userName: "王小虎",
-                isId: 0,
-                idNum: 87347362984792384,
-                phone: 1637584732,
-                city: "上海",
-                intro: "活泼开朗",
-                createTime: "2020/9/10",
-                reviseTime: "2021/8/5",
-            },
+            info: {},
             newPwd: "",
             newPhone: "",
             newIntro: "",
         };
     },
+    created: function () {
+        axios
+            .get("user/info", {
+                params: {
+                    id: sessionStorage.getItem("id"),
+                },
+            })
+            .then((out) => {
+                if (out.status == 200) {
+                    this.info = out.data;
+                } else {
+                    alert("请刷新重试");
+                }
+            })
+            .catch((error) => {
+                alert(error);
+            });
+    },
     methods: {
         getInfo: function () {
-            curUser.id = sessionStorage.getItem("id");
+            info.id = sessionStorage.getItem("id");
             axios
                 .get("/user/info", {
                     params: {
-                        id: curUser.id,
+                        id: info.id,
                     },
                 })
                 .then((out) => {
@@ -70,7 +84,7 @@ export default {
                 axios
                     .get("/user/revisePhone", {
                         params: {
-                            id: this.curUser.id,
+                            id: this.info.id,
                             newPhone: this.newPhone,
                         },
                     })
@@ -88,21 +102,15 @@ export default {
             if (this.newPwd == "") {
                 alert("请输入新密码!");
             } else {
-                axios
-                    .get("/user/revisePwd", {
-                        params: {
-                            id: this.curUser.id,
-                            newPwd: this.newPwd,
-                        },
-                    })
-                    .then((out) => {
-                        if (out.status == 200) {
-                            alert("修改成功!");
-                            this.$router.go(0);
-                        } else {
-                            alert("服务器错误, 请重试!");
-                        }
-                    });
+                this.info.pwd = this.newPwd;
+                axios.post("/user/reviseInfo", this.info).then((out) => {
+                    if (out.status == 200) {
+                        alert("修改成功!");
+                        this.$router.go(0);
+                    } else {
+                        alert("服务器错误, 请重试!");
+                    }
+                });
             }
         },
         reviseIntro: function () {
@@ -112,7 +120,7 @@ export default {
                 axios
                     .get("/user/reviseIntro", {
                         params: {
-                            id: this.curUser.id,
+                            id: this.info.id,
                             newIntro: this.newIntro,
                         },
                     })
@@ -126,22 +134,6 @@ export default {
                     });
             }
         },
-    },
-    created: function () {
-        this.curUser.id = sessionStorage.getItem("id");
-        axios
-            .get("/user/info", {
-                params: {
-                    id: this.curUser.id,
-                },
-            })
-            .then((out) => {
-                if (out.status == 200) {
-                    this.curUser = out.data;
-                } else {
-                    alert("请求错误, 请重试!");
-                }
-            });
     },
 };
 </script>

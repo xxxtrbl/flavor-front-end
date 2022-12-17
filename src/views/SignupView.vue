@@ -1,21 +1,15 @@
 <template>
-    <div id="root">
-        <span>用户注册</span>
-        <input v-model="user.id" maxlength="8" oninput="value=value.replace(/[^\d]/g,'')" type="text" placeholder="账号">
-        <input v-model="user.password" type="password" placeholder="密码">
-        <input v-model="user.nickname" type="text" placeholder="用户名">
-        <span>用户类型:
-            <input type="radio" name="type" placeholder="管理员" value="1" v-model="user.isAdmin" checked>管理员
-            <input type="radio" name="type" placeholder="普通用户" value="0" v-model="user.isAdmin">普通用户
-        </span>
-        <input v-model="user.userName" type="text" placeholder="用户姓名">
-        <span>证件类型:
-            <input type="radio" name="idType" value="1" v-model="user.isId" checked>身份证
-            <input type="radio" name="idType" value="0" v-model="user.isId">其他
-        </span>
-        <input v-model="user.idNum" maxlength="18" oninput="value=value.replace(/[^\d]/g,'')" type="text" placeholder="证件号码">
-        <input v-model="user.phone" maxlength="11" oninput="value=value.replace(/[^\d]/g,'')" type="text" placeholder="手机号码">
-        <span>选择城市:
+    <el-form :model="user" :rules="rules" ref="user" label-width="100px" class="demo-user">
+        <el-form-item label="账号" prop="id">
+            <el-input size="small" v-model="user.id"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+            <el-input size="small" show-password type="password" v-model="user.password" placeholder="8-20位字符在数字、小写、大写字母以及特殊字符" autocomplete="off">
+            </el-input>
+            <el-progress size="small" :percentage="passwordPercent" :format="passwordPercentFormat" :show-text="true" :text-inside="true" :stroke-width="15" :color="pwdColorF">
+            </el-progress>
+        </el-form-item>
+        <el-form-item label="城市" prop="city">
             <el-select size="small" style="width: 100px" v-model="selectProv" placeholder="请选择省份" v-on:change="getProv($event)">
                 <el-option v-for="item in provs" :label="item.label" :value="item.value">
                 </el-option>
@@ -24,10 +18,38 @@
                 <el-option v-for="item in citys" :label="item.label" :value="item.value">
                 </el-option>
             </el-select>
-        </span>
-        <input v-model="user.intro" type="text" placeholder="用户简介">
-        <button id="sign-btn" @click="userSignup()">用户注册</button>
-    </div>
+        </el-form-item>
+        <el-form-item size="small" label="用户类型" prop="isAdmin">
+            <el-select v-model="user.isAdmin" placeholder="请选择用户类型">
+                <el-option label="普通用户" value="0"></el-option>
+                <el-option label="管理员" value="1"></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="用户名" prop="nickname">
+            <el-input size="small" v-model="user.nickname"></el-input>
+        </el-form-item>
+        <el-form-item size="small" label="证件类型" prop="isId">
+            <el-select v-model="user.region" placeholder="请选择证件类型">
+                <el-option label="身份证" value="0"></el-option>
+                <el-option label="其他" value="1"></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item size="small" label="姓名" prop="userName">
+            <el-input v-model="user.userName"></el-input>
+        </el-form-item>
+        <el-form-item size="small" label="证件号码" prop="idNum">
+            <el-input v-model="user.idNum"></el-input>
+        </el-form-item>
+        <el-form-item size="small" label="手机号码" prop="phone">
+            <el-input v-model="user.phone"></el-input>
+        </el-form-item>
+        <el-form-item size="small" label="简介" prop="intro">
+            <el-input type="textarea" v-model="user.intro"></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button size="small" type="primary" @click="submitForm('user')">注册</el-button>
+        </el-form-item>
+    </el-form>
 </template>
 
 <script>
@@ -35,12 +57,82 @@ import axios from "axios";
 export default {
     name: "SignupView",
     data() {
+        const validatePassword = (rule, value, callback) => {
+            if (value === "") {
+                callback(new Error("请输入密码"));
+            } else {
+                //6-20位包含字符、数字和特殊字符
+                var ls = 0;
+                if (this.user.password !== "") {
+                    if (this.user.password.match(/([a-z])+/)) {
+                        ls++;
+                    }
+                    if (this.user.password.match(/([0-9])+/)) {
+                        ls++;
+                    }
+                    if (this.user.password.match(/([A-Z])+/)) {
+                        ls++;
+                    }
+                    if (
+                        this.user.password.match(/([\W])+/) &&
+                        !this.user.password.match(/(![\u4E00-\u9FA5])+/)
+                    ) {
+                        ls++;
+                    }
+                    if (
+                        this.user.password.length < 6 ||
+                        this.user.password.length > 20
+                    ) {
+                        callback(new Error("要求6-20位字符"));
+                        ls = 0;
+                    }
+                    if (this.user.password.match(/([\u4E00-\u9FA5])+/)) {
+                        callback(new Error("不能包含中文字符"));
+                        ls = 0;
+                    }
+                    switch (ls) {
+                        case 0:
+                            this.passwordPercent = 0;
+                            callback(
+                                new Error(
+                                    "数字、小写字母、大写字母以及特殊字符"
+                                )
+                            );
+                            break;
+                        case 1:
+                            this.passwordPercent = 30;
+                            callback(
+                                new Error(
+                                    "数字、小写字母、大写字母以及特殊字符"
+                                )
+                            );
+                            break;
+                        case 2:
+                            this.passwordPercent = 60;
+                            callback(
+                                new Error(
+                                    "数字、小写字母   、大写字母以及特殊字符"
+                                )
+                            );
+                            break;
+                        case 3:
+                        case 4:
+                            this.passwordPercent = 100;
+                            break;
+                        default:
+                            this.passwordPercent = 0;
+                            break;
+                    }
+                }
+                callback();
+            }
+        };
         return {
             user: {
                 id: "",
                 password: "",
                 nickname: "",
-                isAdmin: 0,
+                isAdmin: "",
                 userName: "",
                 isId: 1,
                 idNum: "",
@@ -89,32 +181,113 @@ export default {
             citys: [],
             selectProv: "",
             selectCity: "",
+            rules: {
+                id: [
+                    {
+                        required: true,
+                        message: "请输入用户id",
+                        trigger: "blur",
+                    },
+                    { min: 8, max: 8, message: "长度为8", trigger: "blur" },
+                ],
+                password: [
+                    {
+                        required: true,
+                        validator: validatePassword,
+                        trigger: ["blur", "change"],
+                    },
+                ],
+                nickname: [
+                    {
+                        required: true,
+                        message: "请输入用户名",
+                        trigger: "blur",
+                    },
+                ],
+                isAdmin: [
+                    {
+                        required: true,
+                        message: "请选择用户类型",
+                        trigger: "blur",
+                    },
+                ],
+                userName: [
+                    {
+                        required: true,
+                        message: "请输入用户名",
+                        trigger: "blur",
+                    },
+                    {
+                        min: 3,
+                        max: 8,
+                        message: "长度为3-8个字符",
+                        trigger: "blur",
+                    },
+                ],
+                idNum: [
+                    {
+                        required: true,
+                        message: "请输入身份证号码",
+                        trigger: "blur",
+                    },
+                    {
+                        min: 18,
+                        max: 18,
+                        message: "必须输入18个字符",
+                        trigger: "blur",
+                    },
+                ],
+                phone: [
+                    {
+                        required: true,
+                        message: "请输入电话号码",
+                        trigger: "blur",
+                    },
+                    {
+                        min: 11,
+                        max: 11,
+                        message: "必须输入11位数字",
+                    },
+                ],
+                intro: [
+                    {
+                        required: true,
+                        message: "请输入简介",
+                        trigger: "blur",
+                    },
+                ],
+                city: [
+                    {
+                        required: true,
+                        message: "请输入城市",
+                    },
+                ],
+                isId: [
+                    {
+                        required: true,
+                        message: "请选择账号类型",
+                    },
+                ],
+            },
         };
     },
     methods: {
-        userSignup: function () {
-            if (
-                this.user.id != "" &&
-                this.user.password != "" &&
-                this.user.nickname != "" &&
-                this.user.userName != "" &&
-                this.user.idNum != "" &&
-                this.user.phone != "" &&
-                this.user.city != "" &&
-                this.user.intro != ""
-            ) {
-                console.log(this.user);
-                axios.post("/user/register", this.user).then((msg) => {
-                    if (msg.status == 200) {
-                        alert("注册成功, 即将自动跳转至登录");
-                        this.$router.push("/login");
-                    } else {
-                        alert("此id已存在, 注册失败!");
-                    }
-                });
-            } else {
-                alert("信息不完整! 请检查后重新注册! ");
-            }
+        submitForm(formName) {
+            this.$refs[formName].validate((valid) => {
+                if (valid) {
+                    axios.post("/user/register", this.user).then((msg) => {
+                        if (msg.status == 200) {
+                            alert("注册成功, 即将自动跳转至登录");
+                            this.$router.push("/login");
+                        } else {
+                            alert("此id已存在, 注册失败!");
+                        }
+                    });
+                } else {
+                    console.log("error submit!!");
+                    return false;
+                }
+            });
         },
         getProv: function (prov) {
             let tempCity = [];
@@ -1648,15 +1821,33 @@ export default {
         getCity: function (city) {
             this.user.city = this.selectProv + this.selectProv;
         },
+        passwordPercentFormat(percentage) {
+            return percentage == 30
+                ? "弱"
+                : percentage == 60
+                ? "中"
+                : percentage == 100
+                ? "强"
+                : "弱";
+        },
+        pwdColorF(percentage) {
+            return percentage == 30
+                ? "#FF5340"
+                : percentage == 60
+                ? "#FFB640"
+                : percentage == 100
+                ? "#25DC1B"
+                : "#FF5340";
+        },
     },
 };
 </script>
 <style scoped>
-#root {
-    display: flex;
+.demo-user {
+    /* display: flex; */
     flex-direction: column;
     height: 85%;
-    justify-content: space-between;
+    /* justify-content: space-between; */
     padding-left: 20%;
     padding-right: 20%;
     width: 40%;

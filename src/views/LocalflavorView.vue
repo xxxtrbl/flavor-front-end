@@ -1,7 +1,15 @@
 <template>
     <div>
-        <div>您所在的地区是:<span style="color:blue">{{this.city}}</span></div>
-        <el-table :data="requestsInfo.slice((currentPage-1)*pageSize, currentPage*pageSize)" style="width: 100%" :cell-class-name="cellClassName" @cell-click="checkDetail" :current-page.sync="currentPage">
+        <el-header>
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+                <el-breadcrumb-item>活动管理</el-breadcrumb-item>
+            </el-breadcrumb>
+        </el-header>
+        <span>
+            <el-tag type="info">您所在的地区是: {{this.city}}</el-tag>
+        </span>
+        <el-table :data="requestsInfo.slice((currentPage-1)*pageSize, currentPage*pageSize)" style="width: 100%" :cell-class-name="cellClassName" :current-page.sync="currentPage">
             <el-table-column prop="flavorType" label="口味">
                 <template slot-scope="scope">
                     <span v-if="scope.row.flavorType==0">
@@ -26,18 +34,18 @@
             <el-table-column prop="maxPrice" label="最大价钱" />
             <el-table-column prop="status" label="状态">
                 <template slot-scope="scope">
-                    <span v-if="scope.row.status==0">
+                    <el-tag type="success" v-if="scope.row.status==0">
                         已完成
-                    </span>
-                    <span v-if="scope.row.status==1">
+                    </el-tag>
+                    <el-tag type="warning" v-if="scope.row.status==1">
                         待响应
-                    </span>
-                    <span v-if="scope.row.status==2">
+                    </el-tag>
+                    <el-tag type="info" v-if="scope.row.status==2">
                         已取消
-                    </span>
-                    <span v-if="scope.row.status==3">
+                    </el-tag>
+                    <el-tag type="danger" v-if="scope.row.status==3">
                         到期未达成
-                    </span>
+                    </el-tag>
                 </template>
             </el-table-column>
             <el-table-column align="right">
@@ -60,8 +68,7 @@ export default {
     data() {
         return {
             requestsInfo: [],
-            click_row: -1,
-            pageSize: 1,
+            pageSize: 4,
             currentPage: 1,
             city: "",
         };
@@ -77,10 +84,6 @@ export default {
         // 当前页
         handleCurrentChange(val) {
             this.currentPage = val;
-        },
-        checkDetail: function (row) {
-            this.click_row = row.index;
-            this.curId = this.requestsInfo[row.index].requestId;
         },
     },
     created: function () {
@@ -101,3 +104,10 @@ export default {
     },
 };
 </script>
+<style>
+.el-header {
+    padding: 0 0;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+</style>

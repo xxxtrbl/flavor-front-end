@@ -16,6 +16,8 @@ import SearchflavorView from "../views/SearchflavorView.vue"
 import RecievedmsgView from "../views/RecievedmsgView.vue"
 import FeestatisticView from "../views/FeestatisticView.vue"
 import AnswerView from "../views/AnswerView.vue"
+import ReviseView from "../views/ReviseView.vue"
+import CheckDetailView from "../views/DetailView.vue"
 
 Vue.use(VueRouter)
 
@@ -39,7 +41,9 @@ const routes = [
             { path: '/searchFlavor', name: 'searchFlavor', component: SearchflavorView },
             { path: '/recievedMsg', name: 'recievedMsg', component: RecievedmsgView },
             { path: '/feeStatistic', name: 'feeStatistic', component: FeestatisticView },
-            { path: '/answer', name: 'answerView', component: AnswerView }
+            { path: '/answer', name: 'answerView', component: AnswerView },
+            { path: '/reviseAnswer', name: 'reviseAnswer', component: ReviseView },
+            { path: '/checkDetail', name: 'checkDetail', component: CheckDetailView }
         ]
     },
 ]

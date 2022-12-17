@@ -3,7 +3,7 @@
         <el-container style="height:100%;">
             <el-aside width="250px" style="background-color: rgb(238, 241, 246);">
                 <el-menu :default-openeds="['1', '3']">
-                    <el-submenu index="1" v-if="!this.isAdmin">
+                    <el-submenu index="1" v-if="!this.isAdmin&&this.isLogged">
                         <template slot="title"><i class="el-icon-message"></i>寻味道</template>
                         <el-menu-item-group>
                             <el-menu-item index="1-1">
@@ -28,7 +28,7 @@
                             </el-menu-item>
                         </el-menu-item-group>
                     </el-submenu>
-                    <el-submenu index="2" v-if="!this.isAdmin">
+                    <el-submenu index="2" v-if="!this.isAdmin&&this.isLogged">
                         <template slot="title"><i class="el-icon-message"></i>请品鉴</template>
                         <el-menu-item-group>
                             <el-menu-item index="2-1">
@@ -38,12 +38,7 @@
                             </el-menu-item>
                             <el-menu-item index="2-2">
                                 <router-link to="/myComments">
-                                    我的品鉴(接受/未接受响应)
-                                </router-link>
-                            </el-menu-item>
-                            <el-menu-item index="2-3">
-                                <router-link to="/tRevise">
-                                    我要修改/删除
+                                    我的品鉴
                                 </router-link>
                             </el-menu-item>
                         </el-menu-item-group>
@@ -58,12 +53,12 @@
                             </el-menu-item>
                             <el-menu-item index="3-2">
                                 <router-link to="/searchFlavor">
-                                    寻味道
+                                    请品鉴信息
                                 </router-link>
                             </el-menu-item>
                             <el-menu-item index="3-3">
                                 <router-link to="/recievedMsg">
-                                    接受的请求信息
+                                    寻味道信息
                                 </router-link>
                             </el-menu-item>
                             <el-menu-item index="3-4">

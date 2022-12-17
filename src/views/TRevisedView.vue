@@ -1,7 +1,8 @@
 <template>
     <div id="root">
+        <el-image style="width: 100px; height: 100px" v-if="this.url!=''" :src="url" :fit="fit"></el-image>
         <el-input v-model="info.theme" placeholder="请输入主题"></el-input>
-        <el-select v-model="info.flavorType" placeholder="选择味道类型">
+        <el-select v-model="info.flavorType" :placeholder="this.type.label">
             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
         </el-select>
@@ -11,7 +12,7 @@
             最大价格：
             <el-input-number v-model="info.maxPrice" :min="1" :max="2000"></el-input-number>
         </div>
-        <el-date-picker v-model="info.endDate" type="date" placeholder="选择请求结束日期" :picker-options="pickerOptions">
+        <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" v-model="info.endDate" type="date" placeholder="选择请求结束日期" :picker-options="pickerOptions">
         </el-date-picker>
         <el-upload class="upload-demo" action="http://localhost:9090/request/uploadPics" :on-change="handleChange" :limit="1" :on-remove="handleRemove" :file-list="fileList" list-type="picture">
             <el-button size="small" type="primary">上传图片</el-button>
@@ -27,6 +28,7 @@ export default {
     name: "TRevisedView",
     data() {
         return {
+            url: "",
             info: {
                 userId: sessionStorage.getItem("id"),
                 flavorType: "",
@@ -37,6 +39,10 @@ export default {
                 endDate: "",
                 photo: "",
                 status: 0,
+            },
+            type: {
+                value: "",
+                label: "",
             },
             fileList: [],
             options: [
@@ -72,20 +78,24 @@ export default {
     methods: {
         submit: function () {
             if (
-                this.info.flavorType == "" ||
                 this.info.theme == "" ||
                 this.info.intro == "" ||
                 this.info.endDate == ""
             ) {
                 alert("信息不完整, 请检查表单!");
             } else {
+                this.info.createTime = "";
+                this.info.reviseTime = "";
                 if (this.fileList.length != 0) {
                     this.info.photo = this.fileList[0].name;
+                }
+                if (this.info.flavorType == "") {
+                    this.info.flavorType = this.type.value;
                 }
                 axios.post("/request/revise", this.info).then((out) => {
                     if (out.status == 200) {
                         alert("修改成功!");
-                        this.$router.go(0);
+                        this.$router.push("/publishedList");
                     } else {
                         alert("出现错误, 请重试!");
                     }
@@ -111,20 +121,24 @@ export default {
             .then((out) => {
                 if (out.status == 200) {
                     this.info = out.data;
-                    var type = this.info.flavorType;
-                    switch (type) {
+                    this.type.value = this.info.flavorType;
+                    switch (this.type.value) {
                         case 0:
-                            this.info.flavorType = "家乡小吃";
+                            this.type.label = "家乡小吃";
                             break;
                         case 1:
-                            this.info.flavorType = "地方特色小馆";
+                            this.type.label = "地方特色小馆";
                             break;
                         case 2:
-                            this.info.flavorType = "香辣味";
+                            this.type.label = "香辣味";
                             break;
                         case 3:
-                            this.info.flavorType = "绝一味菜";
+                            this.type.label = "绝一味菜";
                             break;
+                    }
+                    this.info.flavorType = "";
+                    if (this.info.photo != "") {
+                        this.url = "http://localhost:9090/" + this.info.photo;
                     }
                 } else {
                     alert("服务器出现错误, 请刷新重试!");

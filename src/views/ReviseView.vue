@@ -25,7 +25,7 @@
             <h4>响应信息</h4>
             <el-input type="textarea" :disabled="this.info.status!=1" v-model="respondInfo.respondIntro" placeholder="请输入响应内容" maxlength="50" show-word-limit>
             </el-input>
-            <el-button size="small" :disabled="this.info.status!=1" @click="submit()">提交响应</el-button>
+            <el-button size="small" :disabled="this.info.status!=1" @click="submit()">修改响应</el-button>
         </div>
     </div>
 </template>
@@ -33,15 +33,15 @@
 <script>
 import axios from "axios";
 export default {
-    name: "AnswerView",
+    name: "ReviseView",
     data() {
         return {
             info: {},
             respondInfo: {
-                id: "",
-                requestId: "",
-                respondUserId: "",
-                respondIntro: "",
+                id: sessionStorage.getItem("respondId"),
+                requestId: sessionStorage.getItem("rrequestId"),
+                respondUserId: sessionStorage.getItem("id"),
+                respondIntro: sessionStorage.getItem("respondContent"),
                 createTime: "",
                 reviseTime: "",
                 status: 0,
@@ -53,11 +53,9 @@ export default {
             if (this.response == "") {
                 alert("请输入响应内容!");
             } else {
-                this.respondInfo.requestId =
-                    sessionStorage.getItem("requestId2");
                 this.respondInfo.respondUserId = sessionStorage.getItem("id");
                 axios
-                    .post("response/add", this.respondInfo)
+                    .post("response/revise", this.respondInfo)
                     .then((out) => {
                         if (out.status == 200) {
                             alert("响应已发送!");
@@ -76,15 +74,12 @@ export default {
         axios
             .get("request/searchByRequestId", {
                 params: {
-                    requestId: sessionStorage.getItem("requestId2"),
+                    requestId: sessionStorage.getItem("rrequestId"),
                 },
             })
             .then((out) => {
                 if (out.status == 200) {
                     this.info = out.data;
-                    if (this.info.userId == sessionStorage.getItem("id")) {
-                        this.info.status = 0;
-                    }
                 } else {
                     alert("请刷新重试");
                 }

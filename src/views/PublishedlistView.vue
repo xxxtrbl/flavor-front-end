@@ -28,18 +28,18 @@
             <el-table-column prop="reviseTime" label="修改日期" />
             <el-table-column prop="status" label="状态">
                 <template slot-scope="scope">
-                    <span v-if="scope.row.status==0">
+                    <el-tag type="success" v-if="scope.row.status==0">
                         已完成
-                    </span>
-                    <span v-if="scope.row.status==1">
+                    </el-tag>
+                    <el-tag type="warning" v-if="scope.row.status==1">
                         待响应
-                    </span>
-                    <span v-if="scope.row.status==2">
+                    </el-tag>
+                    <el-tag type="info" v-if="scope.row.status==2">
                         已取消
-                    </span>
-                    <span v-if="scope.row.status==3">
+                    </el-tag>
+                    <el-tag type="danger" v-if="scope.row.status==3">
                         到期未达成
-                    </span>
+                    </el-tag>
                 </template>
             </el-table-column>
             <el-table-column align="right">
@@ -66,7 +66,7 @@ export default {
         return {
             requestsInfo: [],
             click_row: -1,
-            pageSize: 1,
+            pageSize: 4,
             currentPage: 1,
         };
     },
